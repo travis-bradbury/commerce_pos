@@ -790,9 +790,6 @@ function commerce_pos_report_build_journal_role_table($filters = array()) {
   $query->join('commerce_line_item', 'l', 'l.order_id = t.order_id');
   $query->addExpression('COUNT(DISTINCT l.line_item_id)', 'item_count');
 
-  $product_types = CommercePosService::allowedProductTypes();
-  $query->condition('l.type', $product_types, 'IN');
-
   // Make sure line item count is aggregated.
   $query->groupBy('l.order_id');
 
