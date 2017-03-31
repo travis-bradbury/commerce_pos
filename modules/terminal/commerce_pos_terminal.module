@@ -322,34 +322,20 @@ function commerce_pos_terminal_form_add_pending_check(&$form, &$form_state) {
     return;
   }
 
-  $form['pending_transactions'] = array(
-    '#type' => 'container',
-    '#attributes' => array(
-      'id' => 'commerce-pos-terminal-pending-transactions-overlay',
-      'class' => array('commerce-pos-terminal-pending-transactions-overlay'),
-    ),
-  );
+  $form['pending_transactions'] = commerce_pos_form_modal(array('closeable' => FALSE, 'throbber' => TRUE));
 
-  $form['pending_transactions']['actions'] = array(
-    '#type' => 'container',
-    '#attributes' => array(
-      'id' => 'commerce-pos-terminal-pending-transactions-actions',
-      'class' => array('commerce-pos-terminal-pending-transactions-actions'),
-    ),
-  );
-
-  $form['pending_transactions']['actions']['message'] = array(
+  $form['pending_transactions']['modal']['message'] = array(
     '#markup' => '<p>' . t('Waiting for a payment transaction to complete.') . '</p>',
   );
 
-  $form['pending_transactions']['actions']['cancel'] = array(
+  $form['pending_transactions']['modal']['cancel'] = array(
     '#type' => 'button',
     '#value' => t('Cancel Transaction'),
     '#name' => 'commerce-pos-terminal-cancel-transactions',
     '#element_key' => 'commerce-pos-terminal-cancel-transactions',
   );
 
-  $form['pending_transactions']['actions']['reload'] = array(
+  $form['pending_transactions']['modal']['reload'] = array(
     '#type' => 'button',
     '#value' => t('Reload'),
     '#name' => 'commerce-pos-terminal-transactions-reload',
@@ -358,7 +344,7 @@ function commerce_pos_terminal_form_add_pending_check(&$form, &$form_state) {
     ),
   );
 
-  $form['pending_transactions']['actions']['warning'] = array(
+  $form['pending_transactions']['modal']['warning'] = array(
     '#markup' => '<p>' . t('Cancel the transaction using the payment terminal instead if possible.') . '</p>',
   );
 
@@ -366,7 +352,7 @@ function commerce_pos_terminal_form_add_pending_check(&$form, &$form_state) {
     'type' => 'setting',
     'data' => array(
       'commercePosTerminalPing' => array(
-        'containerId' => 'commerce-pos-terminal-pending-transactions-actions',
+        'containerId' => 'commerce-pos-form-modal-modal',
         'pingTimer' => variable_get('commerce_pos_terminal_pending_transaction_ping_timer', 1000),
         'pingUrl' => url('admin/commerce/pos/terminal/ping/' . $order_id),
         'reloadButtonId' => 'commerce-pos-terminal-transactions-reload',
