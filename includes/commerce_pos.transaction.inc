@@ -52,10 +52,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   $cashier_id = commerce_pos_cashier_get_current_cashier();
   if (!$cashier_id || !commerce_pos_cashier_load($cashier_id)) {
-    drupal_set_message(t('You must log in.'), 'warning');
-    $form['message'] = array(
-      '#markup' => '<p>' . t('Enter your cashier code.') . '</p>',
-    );
+    drupal_set_message(t('You must enter your cashier code to proceed.'), 'warning');
     return;
   }
 
@@ -146,18 +143,28 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     '#type' => 'container',
   );
 
+  // Add the onboarding text if the order is empty.
+  if (empty($order_wrapper)) {
+    $form['product_search']['onboarding_text'] = array(
+      '#type' => 'markup',
+      '#markup' => '<div class="commerce-pos-search-onboarding-message">' . t("<strong>Start your @txn_type:</strong> scan barcode or use product search", array(
+        '@txn_type' => $return ? t('return') : t('order'),
+      )) . '</div>',
+    );
+  }
+
   $form['product_search']['input'] = array(
     '#type' => 'textfield',
-    '#title' => 'product search',
+    '#title' => t('product search'),
     '#title_display' => 'after',
     '#size' => 60,
-    '#description' => 'Search by SKU or product title, start typing to begin your search.',
+    '#description' => t('Search by SKU or product title, start typing to begin your search.'),
     '#attributes' => array(
       'class' => array(
         'commerce-pos-product-autocomplete',
         'commerce-pos-product-search',
       ),
-      'placeholder' => 'Product Search',
+      'placeholder' => t('Product Search'),
     ),
     '#element_validate' => array('_commerce_pos_transaction_validate_product_input'),
   );
@@ -457,7 +464,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   $transaction_options['customer'] = array(
     'email' => array(
       '#type' => 'textfield',
-      '#title' => t('Customer Lookup'),
+      '#title' => t('Customer Info'),
       '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
@@ -589,12 +596,18 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
         case 'park-transaction':
           $transaction->doAction('park');
           unset($form_state['transaction']);
+          // Need to empty input here as the email and phone numbers are still
+          // retaining the old values after rebuilding the form.
+          $form_state['input'] = array();
           drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
           break;
 
         case 'void-transaction':
           $transaction->void();
           unset($form_state['transaction']);
+          // Need to empty input here as the email and phone numbers are still
+          // retaining the old values after rebuilding the form.
+          $form_state['input'] = array();
           drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
           break;
 

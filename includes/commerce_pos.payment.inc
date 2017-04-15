@@ -34,10 +34,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
   $cashier_id = commerce_pos_cashier_get_current_cashier();
   if (!$cashier_id || !commerce_pos_cashier_load($cashier_id)) {
-    drupal_set_message(t('You must log in.'), 'warning');
-    $form['message'] = array(
-      '#markup' => '<p>' . t('Enter your cashier code.') . '</p>',
-    );
+    drupal_set_message(t('You must enter your cashier code to proceed.'), 'warning');
     return;
   }
 
@@ -156,6 +153,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#theme' => 'commerce_pos_keypad',
     );
 
+    // If no triggering element is set, grab the default payment method.
+    $default_payment_method = variable_get('commerce_pos_default_payment_method', '');
+    if (!empty($default_payment_method) && !empty($payment_options[$default_payment_method]) && empty($form_state['triggering_element']['#payment_option_id'])) {
+      $form_state['triggering_element']['#payment_option_id'] = $default_payment_method;
+    }
+
     if (!empty($form_state['triggering_element']['#payment_option_id'])) {
       $option_id = $form_state['triggering_element']['#payment_option_id'];
 
@@ -171,7 +174,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
             '#type' => 'submit',
             '#prefix' => '<div class="commerce-pos-keypad-quick-pay-button">',
             '#suffix' => '</div>',
-            '#value' => commerce_currency_format($rounded * 100, $order_balance['currency_code']),
+            '#value' => commerce_currency_format($rounded, $order_balance['currency_code']),
             '#amount' => $rounded,
             '#ajax' => $form_ajax,
             '#payment_method_id' => $option_id,
@@ -400,7 +403,8 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
     form_set_error('keypad][amount', t('Payment amount must be a number.'));
   }
   if ($form_state['transaction']->type === 'return') {
-    $keyed_amount = $form_state['values']['keypad']['amount'] * 100;
+    $currency_code = $form_state['transaction']->getOrderWrapper()->commerce_order_total->currency_code->value();
+    $keyed_amount = commerce_currency_decimal_to_amount($form_state['values']['keypad']['amount'], $currency_code);
     $order_amount = $form_state['transaction']->getOrderWrapper()->commerce_order_total->amount->value();
     $payments = commerce_payment_transaction_load_multiple(array(), array('order_id' => $form_state['transaction']->getOrderWrapper()->order_id->value()));
     foreach ($payments as $payment) {
@@ -420,11 +424,11 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
 function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $payment_method = commerce_payment_method_load($form_state['triggering_element']['#payment_method_id']);
 
-  $entered_pay_value = !empty($form_state['triggering_element']['#amount']) ? $form_state['triggering_element']['#amount'] : $form_state['values']['keypad']['amount'];
-  $entered_pay_value *= 100;
-
   $order_wrapper = $form_state['transaction']->getOrderWrapper();
   $order_id = $order_wrapper->order_id->value();
+  $currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+  $entered_pay_value = !empty($form_state['triggering_element']['#amount']) ?
+    $form_state['triggering_element']['#amount'] : commerce_currency_decimal_to_amount($form_state['values']['keypad']['amount'], $currency_code);
   $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_id);
   $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
   $transaction->amount = $entered_pay_value;

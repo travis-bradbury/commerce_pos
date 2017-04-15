@@ -318,9 +318,9 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
     if (strtotime($date_filter) >= strtotime('00:00:00')) {
       $form['results']['end_of_day_notice'] = array(
-        '#markup' => t('End of Day is at @time.', array(
-            '@time' => format_date(commerce_pos_report_end_of_day_timestamp(), 'custom', 'g:i a T')
-          )) . '<br><br>' . t('Changes cannot be saved after that time.'),
+        '#markup' => '<div class="commerce-pos-report-eod-notice"><p>' . t('End of Day is at @time.', array(
+          '@time' => format_date(commerce_pos_report_end_of_day_timestamp(), 'custom', 'g:i a T'),
+        )) . '</p><p>' . t('Changes cannot be saved after that time.') . '</p></div>',
         '#weight' => 200,
       );
     }
@@ -808,8 +808,8 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
   $query->join('commerce_line_item', 'l', 'l.order_id = t.order_id');
   $query->addExpression('COUNT(DISTINCT l.line_item_id)', 'item_count');
 
-  $product_types = CommercePosService::allowedProductTypes();
-  $query->condition('l.type', $product_types, 'IN');
+  $line_item_types = commerce_product_line_item_types();
+  $query->condition('l.type', $line_item_types, 'IN');
 
   // Make sure line item count is aggregated.
   $query->groupBy('l.order_id');
