@@ -138,6 +138,7 @@
     font: inherit;
 
     &:hover, &:focus {
+      background: inherit;
       text-decoration: underline;
     }
   }
@@ -145,7 +146,9 @@
 
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit,
 #commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit,
-#commerce-pos-location-float-form .form-submit {
+#commerce-pos-location-float-form .form-submit,
+#commerce-pos-sale-wrapper .commerce-pos-form-modal-modal .form-submit,
+#commerce-pos-pay-form-wrapper .commerce-pos-form-modal-modal .form-submit {
   background: $primary;
   border: 0;
   margin: 0 0 5px 0;
@@ -272,8 +275,9 @@ div.status {
   &-modal {
     background: #fff;
     border: 1px solid #666;
-    height: 33%;
+    max-height: 75%;
     left: 50%;
+    overflow: auto;
     padding: 20px;
     position: fixed;
     text-align: center;
@@ -306,4 +310,7 @@ div.status {
     max-width: 60px;
   }
 
+  &-notice {
+    font-style: italic;
+  }
 }

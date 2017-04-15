@@ -27,7 +27,7 @@
         $(this).once('commerce-pos-keybindings')
       });
 
-      if (settings.commercePosSale.focusProductInput) {
+      if (settings.commercePosSale && settings.commercePosSale.focusProductInput) {
         $('.commerce-pos-product-search').focus();
       }
 
