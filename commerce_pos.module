@@ -3,6 +3,8 @@
 /**
  * @file
  * Hooks and utility functions for commerce_pos.
+ *
+ * Oh boy, I hope this is PHP-highlighted now!
  */
 
 define('COMMERCE_PAYMENT_STATUS_VOID', 'void');
