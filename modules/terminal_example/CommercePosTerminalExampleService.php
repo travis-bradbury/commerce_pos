@@ -50,7 +50,7 @@ class CommercePosTerminalExampleService implements CommercePosTerminalServiceInt
       $transaction->remote_status = 'success';
     }
     else {
-      $this->message = 'Even amounts are always unsuccessful';
+      $this->message = 'Odd amounts are always unsuccessful';
       $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
       $transaction->remote_status = 'fail';
     }
