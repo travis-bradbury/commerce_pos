@@ -235,7 +235,7 @@ function theme_commerce_pos_transaction_actions($variables) {
     $output[] = l($action, '#', array(
       'attributes' => array(
         'class' => array(
-          'commerce-pos-' . $action . '-payment',
+          'commerce-pos-' . strtolower($action) . '-payment',
           'button-link',
           'small',
         ),
