@@ -543,7 +543,7 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
               $transaction->addProduct($product);
             }
             else {
-              $transaction->addProduct($product, 1, TRUE, NULL, 'commerce_pos_return');
+              $transaction->addProduct($product, 1, FALSE, NULL, 'commerce_pos_return');
             }
           }
 
